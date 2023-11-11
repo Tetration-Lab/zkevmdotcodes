@@ -2,15 +2,30 @@ import { EVMResult, getActivePrecompiles } from "@ethereumjs/evm";
 import { EVMOpts } from "@ethereumjs/evm/dist/evm";
 import { CustomPrecompile } from "@ethereumjs/evm/dist/precompiles";
 import { Opcode } from "@ethereumjs/evm/src/opcodes";
-import { EVMInterface, EVMRunCallOpts } from "@ethereumjs/evm/src/types";
+import {AsyncEventEmitter} from "@ethereumjs/util"
+import { EVMEvents } from "@ethereumjs/evm/src/types";
+import { Bloom, RunTxResult } from "@ethereumjs/vm";
+import { Stack } from "@ethereumjs/evm/src/stack";
 
 export type OpcodeList = Map<number, Opcode>
 type OpcodeEntry = { [key: number]: { name: string; isAsync: boolean; dynamicGas: boolean } }
 type OpcodeEntryFee = OpcodeEntry & { [key: number]: { fee: number } }
 
 export class EVM {
+
+  // state & storage
+  memory: number[] = []
+  counter: number = 0
+  balance: number = 0
+  stack: Stack
+  instructions: any[] = []
+
   protected readonly _customPrecompiles?: CustomPrecompile[]
+
+  public readonly _emit: (topic: string, data: any) => Promise<void>
   
+  public eei: any
+  public readonly events: AsyncEventEmitter<EVMEvents>
   opcodes: OpcodeEntry = {
     // 0x0 range - arithmetic ops
     // name, async
@@ -51,13 +66,33 @@ export class EVM {
     0x1d: { name: 'REVERT', isAsync: false, dynamicGas: false }
   }
 
-  async runCall(): Promise<EVMResult> {
-    return {
+  async runCall(): Promise<RunTxResult> {
+    await this.runStep(0x00)
+    const result: RunTxResult = {
+      bloom: new Bloom(),
+      amountSpent: 0n,
+      receipt: {
+        status: 1,
+        logs: [],
+        bitvector: Buffer.from(''),
+        cumulativeBlockGasUsed: 0n
+      },
+      totalGasSpent: 0n,
+      gasRefund: 0n,
+      minerValue: 0n,
       execResult: {
         executionGasUsed: 0n,
-        returnValue: Buffer.from([])
+        returnValue: Buffer.from(''),
       }
     }
+    return result
+  }
+
+  async runStep(opcode: any) {
+    // implement stack machine here
+    console.log(opcode)
+    // hook
+    await this._emit('step', { opcode, stack: this.stack, memory: this.memory, counter: this.counter })
   }
 
   getActiveOpcodes(): OpcodeList {
@@ -80,6 +115,12 @@ export class EVM {
   }
 
   constructor() {
-
+    this.events = new AsyncEventEmitter()
+    this._emit = async (topic: string, data: any): Promise<void> => {
+      return new Promise((resolve) => this.events.emit(topic as keyof EVMEvents, data, resolve))
+    }
+    this.stack = new Stack()
   }
+
+  
 }

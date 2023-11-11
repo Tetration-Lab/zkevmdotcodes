@@ -86,11 +86,12 @@ contract Counter {
   ],
   Bytecode: ['604260005260206000F3'],
   Mnemonic: [
-    `PUSH1 0x42
-PUSH1 0
-MSTORE
-PUSH1 32
-PUSH1 0
+    `CALLER
+PUSH 0x00
+SSTORE
+CALLVALUE
+PUSH 0x01
+SSTORE
 RETURN`,
   ],
 }

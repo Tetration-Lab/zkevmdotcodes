@@ -177,11 +177,11 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     _loadOpcodes()
     _loadPrecompiled()
     _setupStateManager()
-    _setupAccount()
-
+    // _setupAccount()
     vm.evm.events!.on(
       'step',
       (e: InterpreterStep, contFunc: ((result?: any) => void) | undefined) => {
+        console.log(e, contFunc)
         _stepInto(e, contFunc)
       },
     )
@@ -253,7 +253,8 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
           name: 'INVALID',
         })
       } else if (opcode.name === 'PUSH') {
-        const count = parseInt(opcode.fullName.slice(4), 10) * 2
+        const number = parseInt(opcode.fullName.slice(4), 10) > 0 ? parseInt(opcode.fullName.slice(4), 10): 1
+        const count = number * 2
         instructions.push({
           id,
           name: opcode.fullName,
@@ -267,7 +268,6 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
         })
       }
     }
-
     setInstructions(instructions)
   }
 
@@ -282,27 +282,35 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     value: bigint,
     data: string,
   ) => {
-    vm.stateManager.putContractCode(
-      contractAddress,
-      Buffer.from(byteCode, 'hex'),
-    )
-    startTransaction(await transactionData(data, value, contractAddress))
+    // vm.stateManager.putContractCode(
+    //   contractAddress,
+    //   Buffer.from(byteCode, 'hex'),
+    // )
+    // startTransaction(await transactionData(data, value, contractAddress))
+    startTransaction(null)
   }
 
   /**
    * Starts EVM execution of the instructions.
    * @param tx The transaction data to run from.
    */
-  const startTransaction = (tx: TypedTransaction | TxData) => {
+  const startTransaction = (tx: TypedTransaction | TxData | null) => {
     // always start paused
     isExecutionPaused.current = true
     setIsExecuting(true)
     setVmError(undefined)
-
+    console.log('start transaction ...')
     // starting execution via deployed contract's transaction
-    return vm
-      .runTx({ tx: tx as TypedTransaction, block: _getBlock() })
+    return vm.runTx()
       .then(({ execResult, totalGasSpent, createdAddress }) => {
+        // _setExecutionState({
+        //   pc: 0,
+        //   totalGasSpent,
+        //   stack: [],
+        //   memory: Buffer.from(''),
+        //   memoryWordCount: 0n,
+        //   returnValue: Buffer.from(''),
+        // })
         _loadRunState({
           totalGasSpent,
           runState: execResult.runState,
@@ -316,7 +324,24 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
           createdAddress: createdAddress,
         }
       })
-      .finally(() => setIsExecuting(false))
+      .finally(() => setIsExecuting(true))
+    // return vm
+    //   .runTx({ tx: tx as TypedTransaction, block: _getBlock() })
+    //   .then(({ execResult, totalGasSpent, createdAddress }) => {
+    //     _loadRunState({
+    //       totalGasSpent,
+    //       runState: execResult.runState,
+    //       newContractAddress: createdAddress,
+    //       returnValue: execResult.returnValue,
+    //       exceptionError: execResult.exceptionError,
+    //     })
+    //     return {
+    //       error: execResult.exceptionError,
+    //       returnValue: execResult.returnValue,
+    //       createdAddress: createdAddress,
+    //     }
+    //   })
+    //   .finally(() => setIsExecuting(false))
   }
 
   /**
@@ -393,6 +418,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     // FIXME: Instead of allowing to get into exception,
     // prevent from executing when all instructions have been completed.
     try {
+      console.log(nextStepFunction)
       if (nextStepFunction.current) {
         nextStepFunction.current()
       }
@@ -489,7 +515,6 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
   const _loadOpcodes = () => {
     const opcodes: IReferenceItem[] = []
 
-    console.log(vm.evm.getActiveOpcodes!())
     vm.evm.getActiveOpcodes!().forEach((op: Opcode) => {
       const opcode = extractDocFromOpcode(op)
 
@@ -554,9 +579,9 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
   // respectively AFTER applying the original methods.
   // This is necessary in order to handle storage operations easily.
   const _setupStateManager = () => {
-    const proxyStateManager = traceMethodCalls(vm.evm.eei)
-    vm.evm.eei.putContractStorage = proxyStateManager.putContractStorage
-    vm.evm.eei.clearContractStorage = proxyStateManager.clearContractStorage
+    // const proxyStateManager = traceMethodCalls(vm.evm.eei)
+    // vm.evm.eei.putContractStorage = proxyStateManager.putContractStorage
+    // vm.evm.eei.clearContractStorage = proxyStateManager.clearContractStorage
 
     storageMemory.clear()
   }
@@ -699,11 +724,8 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     setExecutionState({
       programCounter: pc,
       stack: stack.map((value) => value.toString(16)).reverse(),
-      totalGas: totalGasSpent.toString(),
       memory: fromBuffer(memory).substring(0, Number(memoryWordCount) * 64),
-      storage,
-      currentGas: currentGas ? currentGas.toString() : undefined,
-      returnValue: returnValue ? returnValue.toString('hex') : undefined,
+      storage
     })
   }
 

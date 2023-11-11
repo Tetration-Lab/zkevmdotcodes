@@ -53,9 +53,6 @@ export interface IExecutionState {
   stack: string[]
   storage: IStorage[]
   memory: string | undefined
-  totalGas: string | undefined
-  currentGas: string | undefined
-  returnValue: string | undefined
 }
 
 export interface IChain {
