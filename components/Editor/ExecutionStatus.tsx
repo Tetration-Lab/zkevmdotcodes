@@ -36,7 +36,7 @@ const ExecutionStatus = () => {
 
   return (
     <div className="flex flex-grow justify-between items-center text-sm">
-      <div>
+      {/* <div>
         <span className="inline-block ml-1 mr-2 text-gray-400">
           <Icon name="gas-station-fill" className="text-indigo-500" />
         </span>
@@ -60,7 +60,7 @@ const ExecutionStatus = () => {
         </span>
 
         <ReactTooltip className="tooltip" effect="solid" />
-      </div>
+      </div> */}
 
       <div>
         <Button

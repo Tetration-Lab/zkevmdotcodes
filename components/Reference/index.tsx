@@ -177,7 +177,7 @@ const ReferenceTable = ({
                     >
                       <div className="flex items-center justify-between">
                         {column.render('Header')}
-                        {isLastColumn && renderExpandButton()}
+                        {/* {isLastColumn && renderExpandButton()} */}
                       </div>
                     </th>
                   )
@@ -229,7 +229,7 @@ const ReferenceTable = ({
                     }
                   }}
                   // @ts-ignore: Waiting for 8.x of react-table to have better types
-                  onClick={() => row.toggleRowExpanded()}
+                  // onClick={() => row.toggleRowExpanded()}
                   style={{ scrollMarginTop: '96px' }}
                 >
                   {row.cells.map((cell) => (
