@@ -145,13 +145,6 @@ const Editor = ({ readOnly = false }: Props) => {
         setIsCompiling(false)
 
         const result = await startTransaction(transaction)
-        if (
-          codeType === CodeType.Solidity &&
-          !result.error &&
-          result.returnValue
-        ) {
-          setMethodByteCode(bufferToHex(result.returnValue))
-        }
         return result
       } catch (error) {
         log((error as Error).message, 'error')
@@ -195,10 +188,6 @@ const Editor = ({ readOnly = false }: Props) => {
         return
       }
 
-      if (codeType === CodeType.Solidity) {
-        setContract(contracts[0])
-      }
-
       if (!isExpanded) {
         deployByteCode(contracts[0].code, '', undefined)
       } else {
@@ -224,8 +213,7 @@ const Editor = ({ readOnly = false }: Props) => {
       setCodeType(query.codeType as string)
       setCode(JSON.parse('{"a":' + decode(query.code as string) + '}').a)
     } else {
-      const initialCodeType: CodeType =
-        getSetting(Setting.EditorCodeType) || CodeType.Yul
+      const initialCodeType: CodeType = CodeType.Mnemonic
 
       setCodeType(initialCodeType)
       setCode(examples[initialCodeType][0])
@@ -295,23 +283,6 @@ const Editor = ({ readOnly = false }: Props) => {
   const handleCodeChange = (value: string) => {
     setCode(value)
     setCodeModified(true)
-
-    try {
-      if (codeType === CodeType.Bytecode) {
-        const cleanBytecode = stripBytecode(value)
-
-        if (timeOutId) {
-          clearTimeout(timeOutId)
-          setTimeOutId(undefined)
-        }
-        setTimeOutId(setTimeout(() => validateBytecode(cleanBytecode), 1000))
-
-        loadInstructions(cleanBytecode)
-        // startExecution(value, _callValue, _callData)
-      }
-    } catch (error) {
-      log((error as Error).message, 'error')
-    }
   }
 
   const highlightCode = (value: string) => {
@@ -319,9 +290,6 @@ const Editor = ({ readOnly = false }: Props) => {
       return value
     }
 
-    if (codeType === CodeType.Bytecode) {
-      return codeHighlight(value, codeType).value
-    }
     return codeHighlight(value, codeType)
       .value.split('\n')
       .map((line, i) => `<span class='line-number'>${i + 1}</span>${line}`)
@@ -344,13 +312,6 @@ const Editor = ({ readOnly = false }: Props) => {
       instructions?.length > 0
     ) {
       const code = getBytecodeLinesFromInstructions(instructions)
-      setCode(code)
-    } else if (
-      value &&
-      value === CodeType.Bytecode &&
-      instructions?.length > 0
-    ) {
-      const code = getMnemonicFromBytecode(instructions, opcodes)
       setCode(code)
     }
 
@@ -385,18 +346,6 @@ const Editor = ({ readOnly = false }: Props) => {
         const bytecode = getBytecodeFromMnemonic(code, opcodes)
         loadInstructions(bytecode)
         startExecution(bytecode, _callValue, _callData)
-      } else if (codeType === CodeType.Bytecode) {
-        const cleanBytecode = stripBytecode(code)
-        if (cleanBytecode.length % 2 !== 0) {
-          log('There should be at least 2 characters per byte', 'error')
-          return
-        }
-        if (!isHex(cleanBytecode)) {
-          log('Only hexadecimal characters are allowed', 'error')
-          return
-        }
-        loadInstructions(cleanBytecode)
-        startExecution(cleanBytecode, _callValue, _callData)
       } else {
         setIsCompiling(true)
         log('Starting compilation...')
@@ -444,15 +393,13 @@ const Editor = ({ readOnly = false }: Props) => {
     return compiling || isEmpty(code)
   }, [compiling, code])
 
-  const isBytecode = useMemo(() => codeType === CodeType.Bytecode, [codeType])
+  const isBytecode = false
   const isCallDataActive = useMemo(
-    () => codeType === CodeType.Mnemonic || codeType === CodeType.Bytecode,
+    () => codeType === CodeType.Mnemonic,
     [codeType],
   )
 
-  const showAdvanceMode = useMemo(() => {
-    return codeType === CodeType.Solidity && isExpanded
-  }, [codeType, isExpanded])
+  const showAdvanceMode = false
   const unitValue = useMemo(
     () => ({
       value: unit,
@@ -543,7 +490,7 @@ const Editor = ({ readOnly = false }: Props) => {
 
                   <div>
                     <Fragment>
-                      {codeType === CodeType.Solidity && (
+                      {/* {codeType === CodeType.Solidity && (
                         <Button
                           onClick={() => setIsExpanded(!isExpanded)}
                           tooltip={'Please run your contract first.'}
@@ -554,7 +501,7 @@ const Editor = ({ readOnly = false }: Props) => {
                             Advance Mode
                           </span>
                         </Button>
-                      )}
+                      )} */}
                     </Fragment>
 
                     <Button

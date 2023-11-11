@@ -11,7 +11,8 @@ import { Opcode } from '@ethereumjs/evm/src/opcodes'
 import { getActivePrecompiles } from '@ethereumjs/evm/src/precompiles'
 import { TypedTransaction, TxData, Transaction } from '@ethereumjs/tx'
 import { Address, Account } from '@ethereumjs/util'
-import { VM } from '@ethereumjs/vm'
+// import { VM } from '@ethereumjs/vm'
+import {VM} from 'util/vm'
 //
 import OpcodesMeta from 'opcodes.json'
 import PrecompiledMeta from 'precompiled.json'
@@ -488,6 +489,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
   const _loadOpcodes = () => {
     const opcodes: IReferenceItem[] = []
 
+    console.log(vm.evm.getActiveOpcodes!())
     vm.evm.getActiveOpcodes!().forEach((op: Opcode) => {
       const opcode = extractDocFromOpcode(op)
 
