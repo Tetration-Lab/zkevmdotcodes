@@ -37,7 +37,6 @@ const Nav = () => {
             style={{ top: 56 }}
           >
             <NavLink href="/">Opcodes</NavLink>
-            <NavLink href="/precompiled">Precompiled Contracts</NavLink>
             <NavLink href="/playground">Playground</NavLink>
             <NavLink href="/about">About the EVM</NavLink>
             <NavLink href={GITHUB_REPO_URL} external>
@@ -50,7 +49,7 @@ const Nav = () => {
           </ul>
 
           <div className="items-center ml-auto flex">
-            <ChainSelector />
+            {/* <ChainSelector /> */}
             <ThemeSelector />
           </div>
 
