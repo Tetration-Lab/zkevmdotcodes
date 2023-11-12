@@ -89,24 +89,7 @@ const ExecutionState = () => {
             </dl>
           </div>
         </dd>
-        <dt className="mb-1 text-gray-500 dark:text-gray-400 font-medium uppercase">
-          Return
-        </dt>
-        <dd className="mb-2">
-          <div
-            className="inline-block border border-gray-600 dark:border-gray-700 px-2 py-1 mb-1 w-full"
-            style={{ minHeight: 26 }}
-          >
-            <dl>
-              {returns.map((value, index) => (
-                <div key={`returns-${index}`}>
-                  <ExecutionStateRow label="Slot" value={index.toString()} />
-                  <ExecutionStateRow label="Value" value={value.toString()} />
-                </div>
-              ))}
-            </dl>
-          </div>
-        </dd>
+        <ExecutionStateRow label="Return" value={[returns.toString()]} />
       </dl>
     </div>
   )

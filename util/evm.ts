@@ -18,7 +18,7 @@ export class EVM {
   // state & storage
   memory: number[] = []
   storage: number[] = []
-  returns: number[] = []
+  returns = 0
   counter = 0
   balance = 0
   stack: Stack<number>
@@ -111,7 +111,7 @@ export class EVM {
     console.log('caller', this.caller)
     this.value = value
     this.balance = value
-    this.returns = new Array<number>(32)
+    this.returns = 0
     this.calldata = this.hexStringToUint8Array(calldata)
     console.log('calldata', this.calldata)
     this.block = block
@@ -138,13 +138,18 @@ export class EVM {
 
   public async runStep() {
     // implement stack machine here
-    const opcode = this.instructions[this.counter]
+    console.log('instructions', this.instructions)
+    const instructions: Record<string, any> = {}
+    this.instructions.forEach((inst:any) => {
+      instructions[inst.id] = inst
+    })
+    const opcode = instructions[this.counter]
     console.log(opcode)
     let needIncraseCounter = true
     if (opcode?.name == 'RETURN') {
       needIncraseCounter = false
       const val = this.stack.pop()
-      this.returns.push(val)
+      this.returns = val
     } else if (opcode?.name == 'ADD') {
       const v1 = this.stack.pop()
       const v2 = this.stack.pop()
@@ -306,7 +311,7 @@ export class EVM {
     this.counter = 0
     this.balance = 0
     this.calldata = []
-    this.returns = new Array<number>(32)
+    this.returns = 0
     this.value = 0
   }
 
@@ -320,7 +325,7 @@ export class EVM {
     this.stack = new Stack<number>()
     this.storage = new Array<number>(32)
     this.memory = new Array<number>(32)
-    this.returns = new Array<number>(32)
+    this.returns = 0
     this.counter = 0
   }
 }
