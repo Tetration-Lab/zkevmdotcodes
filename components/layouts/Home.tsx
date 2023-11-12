@@ -11,9 +11,7 @@ const HomeLayout: NextPage = ({ children }) => {
     <>
       <html lang="en"></html>
       <Head>
-        <title>
-          EVM Codes - An Ethereum Virtual Machine Opcodes Interactive Reference
-        </title>
+        <title>zkEVM Type 5</title>
         <meta property="og:type" content="website" />
         <meta property="og:title" content="EVM Codes" />
         <meta

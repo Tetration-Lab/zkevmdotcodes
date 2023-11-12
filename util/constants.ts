@@ -1,4 +1,6 @@
-export const GITHUB_REPO_URL = 'https://github.com/smlxl/evm.codes'
+export const GITHUB_REPO_URL =
+  'https://github.com/Tetration-Lab/zkevmdotcodes/tree/main'
+export const TURING_ZERO_URL = 'https://turing-zero.tetrationlab.com/'
 
 // Currently active hardfork from the ones available:
 // See: https://github.com/ethereumjs/ethereumjs-monorepo/tree/master/packages/common/src/hardforks
