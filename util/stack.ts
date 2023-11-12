@@ -1,8 +1,8 @@
 export class Stack<T> {
-  public items: T[] = [];
+  public items: T[] = []
 
   push(item: T): void {
-    this.items.push(item);
+    this.items.push(item)
   }
 
   pop(): T {
@@ -16,18 +16,18 @@ export class Stack<T> {
   }
 
   peek(): T {
-    return this.items[this.items.length - 1];
+    return this.items[this.items.length - 1]
   }
 
   isEmpty(): boolean {
-    return this.items.length === 0;
+    return this.items.length === 0
   }
 
   size(): number {
-    return this.items.length;
+    return this.items.length
   }
 
   clear(): void {
-    this.items = [];
+    this.items = []
   }
 }

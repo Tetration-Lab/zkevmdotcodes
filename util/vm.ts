@@ -1,10 +1,10 @@
-import { Memory } from "@ethereumjs/evm/src/memory";
-import { Stack } from "@ethereumjs/evm/src/stack";
-import { Bloom, RunTxResult, VMEvents, VMOpts } from "@ethereumjs/vm";
-import { EVM } from "util/evm";
+import { Memory } from '@ethereumjs/evm/src/memory'
+import { Stack } from '@ethereumjs/evm/src/stack'
+import { Bloom, RunTxResult, VMEvents, VMOpts } from '@ethereumjs/vm'
+
+import { EVM } from 'util/evm'
 
 export class VM {
-
   readonly stateManager: any
   readonly events: any
   readonly evm: any
@@ -14,7 +14,12 @@ export class VM {
     return vm
   }
 
-  public async runTx(instructions: any[], caller: number = 69, value: number = 12, calldata:string = ''): Promise<RunTxResult> {
+  public async runTx(
+    instructions: any[],
+    caller = 69,
+    value = 12,
+    calldata = '',
+  ): Promise<RunTxResult> {
     // execute with dummy result
     const result = await this.evm.runCall(instructions, caller, value, calldata)
     return result

@@ -202,13 +202,13 @@ const SolidityAdvanceModeTab: FC<Props> = ({
     }
 
     try {
-      const transaction = await transactionData(
-        data,
-        getCallValue(),
-        Address.fromString(deployedContractAddress),
-      )
+      // const transaction = await transactionData(
+      //   data,
+      //   getCallValue(),
+      //   Address.fromString(deployedContractAddress),
+      // )
 
-      const result = await startTransaction(transaction)
+      const result = await startTransaction('', 0n, '')
       if (
         !result.error &&
         selectedMethod.outputs &&
@@ -234,8 +234,8 @@ const SolidityAdvanceModeTab: FC<Props> = ({
     selectedMethod,
     loadInstructions,
     getMethodData,
-    transactionData,
-    getCallValue,
+    // transactionData,
+    // getCallValue,
     log,
     startTransaction,
   ])

@@ -11,8 +11,8 @@ import { Opcode } from '@ethereumjs/evm/src/opcodes'
 import { getActivePrecompiles } from '@ethereumjs/evm/src/precompiles'
 import { TypedTransaction, TxData, Transaction } from '@ethereumjs/tx'
 import { Address, Account } from '@ethereumjs/util'
+
 // import { VM } from '@ethereumjs/vm'
-import {VM} from 'util/vm'
 //
 import OpcodesMeta from 'opcodes.json'
 import PrecompiledMeta from 'precompiled.json'
@@ -30,8 +30,9 @@ import {
   calculateOpcodeDynamicFee,
   calculatePrecompiledDynamicFee,
 } from 'util/gas'
-import { toHex, fromBuffer } from 'util/string'
 import { Stack } from 'util/stack'
+import { toHex, fromBuffer } from 'util/string'
+import { VM } from 'util/vm'
 
 let vm: VM
 let common: Common
@@ -71,7 +72,11 @@ type ContextProps = {
   ) => Promise<TypedTransaction | TxData>
   loadInstructions: (byteCode: string) => void
   startExecution: (byteCode: string, value: bigint, data: string) => void
-  startTransaction: (tx: TypedTransaction | TxData) => Promise<{
+  startTransaction: (
+    byteCode: string,
+    value: bigint,
+    data: string,
+  ) => Promise<{
     error?: EvmError
     returnValue: Buffer
     createdAddress: Address | undefined
@@ -87,7 +92,7 @@ const initialExecutionState = {
   programCounter: 0,
   stack: [],
   storage: [],
-  memory: []
+  memory: [],
 }
 
 export const EthereumContext = createContext<ContextProps>({
@@ -250,7 +255,10 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
           name: 'INVALID',
         })
       } else if (opcode.name === 'PUSH') {
-        const number = parseInt(opcode.fullName.slice(4), 10) > 0 ? parseInt(opcode.fullName.slice(4), 10): 1
+        const number =
+          parseInt(opcode.fullName.slice(4), 10) > 0
+            ? parseInt(opcode.fullName.slice(4), 10)
+            : 1
         const count = number * 2
         instructions.push({
           id,
@@ -295,13 +303,14 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
    * Starts EVM execution of the instructions.
    * @param tx The transaction data to run from.
    */
-  const startTransaction = (byteCode: string, value: bigint, data:string) => {
+  const startTransaction = (byteCode: string, value: bigint, data: string) => {
     // always start paused
     isExecutionPaused.current = true
     setIsExecuting(true)
     setVmError(undefined)
     // starting execution via deployed contract's transaction
-    return vm.runTx(instructions, 69, parseInt(value.toString()), data)
+    return vm
+      .runTx(instructions, 69, parseInt(value.toString()), data)
       .then(({ execResult, totalGasSpent, createdAddress }) => {
         // _setExecutionState({
         //   pc: 0,
@@ -652,12 +661,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
   }
 
   const _stepInto = (
-    {
-      pc,
-      stack,
-      memory,
-      storage
-    }: any,
+    { pc, stack, memory, storage }: any,
     continueFunc: ((result?: any) => void) | undefined,
   ) => {
     // We skip over the calls
@@ -671,7 +675,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
       pc,
       stack,
       memory,
-      storage
+      storage,
     })
 
     nextStepFunction.current = continueFunc
@@ -689,17 +693,19 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     pc,
     stack,
     memory,
-    storage
+    storage,
   }: {
     pc: number
-    stack: Stack<number>,
-    memory: number[],
+    stack: Stack<number>
+    memory: number[]
     storage: number[]
   }) => {
-    console.log("before setting", executionState)
+    console.log('before setting', executionState)
     setExecutionState({
       programCounter: pc,
-      stack: stack.items.map((item) => parseInt(item.toString()).toString()).reverse(),
+      stack: stack.items
+        .map((item) => parseInt(item.toString()).toString())
+        .reverse(),
       memory: memory,
       storage: storage,
     })

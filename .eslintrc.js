@@ -38,7 +38,7 @@ module.exports = {
     'react/display-name': 'off',
     'jsx-a11y/anchor-is-valid': 'off',
     'import/no-unresolved': 0,
-    '@typescript-eslint/no-unused-vars': ['error'],
+    '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',

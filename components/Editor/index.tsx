@@ -10,7 +10,6 @@ import React, {
   Fragment,
 } from 'react'
 
-import { bufferToHex } from '@ethereumjs/util'
 import { encode, decode } from '@kunigi/string-compression'
 import cn from 'classnames'
 import copy from 'copy-to-clipboard'
@@ -144,7 +143,7 @@ const Editor = ({ readOnly = false }: Props) => {
         loadInstructions(bc)
         setIsCompiling(false)
 
-        const result = await startTransaction(transaction)
+        const result = await startTransaction('', 0n, '')
         return result
       } catch (error) {
         log((error as Error).message, 'error')
@@ -194,7 +193,7 @@ const Editor = ({ readOnly = false }: Props) => {
         setIsCompiling(false)
       }
     },
-    [resetExecution, log, codeType, isExpanded, deployByteCode],
+    [resetExecution, log, isExpanded, deployByteCode],
   )
 
   useEffect(() => {
@@ -363,11 +362,11 @@ const Editor = ({ readOnly = false }: Props) => {
     }
   }, [
     code,
-    codeType,
     opcodes,
     selectedFork,
     callData,
     callValue,
+    codeType,
     loadInstructions,
     log,
     startExecution,

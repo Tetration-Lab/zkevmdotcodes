@@ -1,34 +1,36 @@
-import { EVMResult, getActivePrecompiles } from "@ethereumjs/evm";
-import { EVMOpts } from "@ethereumjs/evm/dist/evm";
-import { CustomPrecompile } from "@ethereumjs/evm/dist/precompiles";
-import { Opcode } from "@ethereumjs/evm/src/opcodes";
-import {AsyncEventEmitter} from "@ethereumjs/util"
-import { EVMEvents } from "@ethereumjs/evm/src/types";
-import { Bloom, RunTxResult } from "@ethereumjs/vm";
-import { Stack} from 'util/stack'
+import { EVMResult, getActivePrecompiles } from '@ethereumjs/evm'
+import { EVMOpts } from '@ethereumjs/evm/dist/evm'
+import { CustomPrecompile } from '@ethereumjs/evm/dist/precompiles'
+import { Opcode } from '@ethereumjs/evm/src/opcodes'
+import { EVMEvents } from '@ethereumjs/evm/src/types'
+import { AsyncEventEmitter } from '@ethereumjs/util'
+import { Bloom, RunTxResult } from '@ethereumjs/vm'
+
+import { Stack } from 'util/stack'
 
 export type OpcodeList = Map<number, Opcode>
-type OpcodeEntry = { [key: number]: { name: string; isAsync: boolean; dynamicGas: boolean } }
+type OpcodeEntry = {
+  [key: number]: { name: string; isAsync: boolean; dynamicGas: boolean }
+}
 type OpcodeEntryFee = OpcodeEntry & { [key: number]: { fee: number } }
 
 export class EVM {
-
   // state & storage
   memory: number[] = []
   storage: number[] = []
-  counter: number = 0
-  balance: number = 0
+  counter = 0
+  balance = 0
   stack: Stack<number>
   instructions: any[] = []
-  caller: number = 0
-  value: number = 0
+  caller = 0
+  value = 0
   calldata: number[] = []
-  block: number = 0
+  block = 0
 
   protected readonly _customPrecompiles?: CustomPrecompile[]
 
   public readonly _emit: (topic: string, data: any) => Promise<void>
-  
+
   public eei: any
   public readonly events: AsyncEventEmitter<EVMEvents>
   opcodes: OpcodeEntry = {
@@ -68,31 +70,40 @@ export class EVM {
     0x1a: { name: 'PUSH', isAsync: false, dynamicGas: false },
     0x1b: { name: 'DUP', isAsync: false, dynamicGas: false },
     0x1c: { name: 'SWAP', isAsync: false, dynamicGas: false },
-    0x1d: { name: 'REVERT', isAsync: false, dynamicGas: false }
+    0x1d: { name: 'REVERT', isAsync: false, dynamicGas: false },
   }
 
   hexStringToUint8Array(hexString: string): number[] {
-  // Ensure the input has an even number of characters
-  if (hexString.length % 2 !== 0) {
-    throw new Error('Hexadecimal string must have an even number of characters');
-  }
-
-  const dataArray = new Array<number>(hexString.length / 2);
-
-  for (let i = 0; i < hexString.length; i += 2) {
-    const hexPair = hexString.substr(i, 2); // Get two characters at a time
-    const byteValue = parseInt(hexPair, 16); // Parse as hexadecimal
-    if (isNaN(byteValue)) {
-      throw new Error(`Invalid hexadecimal character(s) at position ${i}: ${hexPair}`);
+    // Ensure the input has an even number of characters
+    if (hexString.length % 2 !== 0) {
+      throw new Error(
+        'Hexadecimal string must have an even number of characters',
+      )
     }
-    dataArray[i / 2] = byteValue;
+
+    const dataArray = new Array<number>(hexString.length / 2)
+
+    for (let i = 0; i < hexString.length; i += 2) {
+      const hexPair = hexString.substr(i, 2) // Get two characters at a time
+      const byteValue = parseInt(hexPair, 16) // Parse as hexadecimal
+      if (isNaN(byteValue)) {
+        throw new Error(
+          `Invalid hexadecimal character(s) at position ${i}: ${hexPair}`,
+        )
+      }
+      dataArray[i / 2] = byteValue
+    }
+
+    return dataArray
   }
 
-  return dataArray;
-}
-
-
-  async runCall(instructions: any[], caller: number, value:number = 0, calldata: string = '', block = 0): Promise<RunTxResult> {
+  async runCall(
+    instructions: any[],
+    caller: number,
+    value = 0,
+    calldata = '',
+    block = 0,
+  ): Promise<RunTxResult> {
     // load opcodes
     // this.instructions = instructions
     this.caller = caller
@@ -110,7 +121,7 @@ export class EVM {
         status: 1,
         logs: [],
         bitvector: Buffer.from(''),
-        cumulativeBlockGasUsed: 0n
+        cumulativeBlockGasUsed: 0n,
       },
       totalGasSpent: 0n,
       gasRefund: 0n,
@@ -118,7 +129,7 @@ export class EVM {
       execResult: {
         executionGasUsed: 0n,
         returnValue: Buffer.from(''),
-      }
+      },
     }
     return result
   }
@@ -128,7 +139,6 @@ export class EVM {
     const opcode = this.instructions[this.counter]
     console.log(opcode)
     if (opcode?.name == 'RETURN') {
-
     } else if (opcode?.name == 'ADD') {
       const v1 = this.stack.pop()
       const v2 = this.stack.pop()
@@ -242,28 +252,36 @@ export class EVM {
       this.stack.push(v1)
     } else if (opcode?.name == 'REVERT') {
       // should halt
-    } 
+    }
     this.counter += 1
     // hook
-    await this._emit('step', { stack: this.stack, memory: this.memory, pc: this.counter, storage: this.storage })
+    await this._emit('step', {
+      stack: this.stack,
+      memory: this.memory,
+      pc: this.counter,
+      storage: this.storage,
+    })
   }
 
   getActiveOpcodes(): OpcodeList {
     const opcodeList: OpcodeList = new Map<number, Opcode>()
     for (const key of Object.keys(this.opcodes)) {
       const opcode = this.opcodes[parseInt(key)]
-      opcodeList.set(parseInt(key), new Opcode({
-        ...opcode,
-        fullName: opcode.name,
-        fee: 1,
-        code: parseInt(key)
-      }))
+      opcodeList.set(
+        parseInt(key),
+        new Opcode({
+          ...opcode,
+          fullName: opcode.name,
+          fee: 1,
+          code: parseInt(key),
+        }),
+      )
     }
     return opcodeList
   }
 
   public get precompiles() {
-    const _precompiles: Map<string,any> = new Map<string,any>()
+    const _precompiles: Map<string, any> = new Map<string, any>()
     return _precompiles
   }
 
@@ -280,13 +298,13 @@ export class EVM {
   constructor() {
     this.events = new AsyncEventEmitter()
     this._emit = async (topic: string, data: any): Promise<void> => {
-      return new Promise((resolve) => this.events.emit(topic as keyof EVMEvents, data, resolve))
+      return new Promise((resolve) =>
+        this.events.emit(topic as keyof EVMEvents, data, resolve),
+      )
     }
     this.stack = new Stack<number>()
     this.storage = new Array<number>(32)
     this.memory = new Array<number>(32)
     this.counter = 0
   }
-
-  
 }

@@ -91,7 +91,10 @@ export const getBytecodeFromMnemonic = (
         throw new Error('Unknown mnemonic: ' + parts[0])
       }
 
-      const number = parseInt(parts[0].substring(4)) > 0 ? parseInt(parts[0].substring(4)) : 1
+      const number =
+        parseInt(parts[0].substring(4)) > 0
+          ? parseInt(parts[0].substring(4))
+          : 1
       bytecode += code.opcodeOrAddress + toHexString(parts[1], number)
     } else {
       const code = opcodes.find((opcode: IReferenceItem) => {
