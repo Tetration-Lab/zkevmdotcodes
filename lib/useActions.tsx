@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 
-import { GITHUB_REPO_URL } from 'util/constants'
+import { GITHUB_REPO_URL, TURING_ZERO_URL } from 'util/constants'
 
 import { Icon } from 'components/ui'
 
@@ -19,16 +19,6 @@ const useActions = () => {
       icon: <Icon name="home-2-line" />,
     },
     {
-      id: 'precompiled',
-      name: 'Precompiled',
-      shortcut: ['a'],
-      keywords: 'precompiled contracts',
-      section: 'Navigation',
-      subtitle: 'Precompiled contracts reference',
-      perform: () => router.push('/precompiled'),
-      icon: <Icon name="information-line" />,
-    },
-    {
       id: 'playground',
       name: 'Playground',
       shortcut: ['p'],
@@ -39,13 +29,13 @@ const useActions = () => {
       icon: <Icon name="play-circle-line" />,
     },
     {
-      id: 'about',
-      name: 'About',
-      shortcut: ['a'],
-      keywords: 'about EVM',
+      id: 'turing',
+      name: 'Turing Zero',
+      shortcut: ['t'],
+      keywords: 'turing zero',
       section: 'Navigation',
-      subtitle: 'About EVM and its internals',
-      perform: () => router.push('/about'),
+      subtitle: 'Turing Zero zmVM',
+      perform: () => window.open(TURING_ZERO_URL, '_blank'),
       icon: <Icon name="information-line" />,
     },
     {

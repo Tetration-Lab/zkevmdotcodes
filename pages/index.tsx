@@ -12,11 +12,9 @@ import { IItemDocs, IGasDocs, IDocMeta } from 'types'
 
 import { EthereumContext } from 'context/ethereumContext'
 
-import ContributeBox from 'components/ContributeBox'
-import EvmStorageBanner from 'components/EvmStorageBanner'
 import HomeLayout from 'components/layouts/Home'
 import ReferenceTable from 'components/Reference'
-import { H1, Container } from 'components/ui'
+import { H1, Container, H3, Icon } from 'components/ui'
 
 const { serverRuntimeConfig } = getConfig()
 
@@ -39,11 +37,27 @@ const HomePage = ({
           content="An Ethereum Virtual Machine Opcodes Interactive Reference"
         />
       </Head>
-      <EvmStorageBanner />
-      <Container>
-        <H1>
-          An Ethereum Virtual Machine <br></br> Opcodes Interactive Reference
-        </H1>
+      {
+        //<EvmStorageBanner />
+      }
+      <Container className="mt-4 mb-10 flex-col w-full text-center">
+        <H1>zkEVM Type 5</H1>
+        <H3 className="mb-4">
+          zkEVM inspired by EVM, Good for learning, Not compatible with
+          anything!
+        </H3>
+        <a>
+          Made with love by{' '}
+          <a
+            className="underline"
+            href="https://www.tetrationlab.com/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Tetration Lab <Icon name="links-line" />
+          </a>{' '}
+          team!
+        </a>
       </Container>
 
       <section className="py-10 md:py-20 bg-gray-50 dark:bg-black-700">
@@ -54,10 +68,6 @@ const HomePage = ({
             gasDocs={gasDocs}
           />
         </Container>
-      </section>
-
-      <section className="pt-20 pb-10 text-center">
-        <ContributeBox />
       </section>
     </>
   )

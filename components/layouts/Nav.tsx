@@ -3,14 +3,12 @@ import { useState } from 'react'
 import cn from 'classnames'
 import Link from 'next/link'
 
-import { GITHUB_REPO_URL } from 'util/constants'
+import { GITHUB_REPO_URL, TURING_ZERO_URL } from 'util/constants'
 
 import KBarButton from 'components/KBar/Button'
 import NavLink from 'components/NavLink'
 import ThemeSelector from 'components/ThemeSelector'
 import { Container, Logo, Hamburger } from 'components/ui'
-
-import ChainSelector from '../ChainSelector'
 
 const Nav = () => {
   const [isMenuVisible, setIsMenuVisible] = useState(false)
@@ -38,7 +36,9 @@ const Nav = () => {
           >
             <NavLink href="/">Opcodes</NavLink>
             <NavLink href="/playground">Playground</NavLink>
-            <NavLink href="/about">About the EVM</NavLink>
+            <NavLink href={TURING_ZERO_URL} external>
+              Turing Zero
+            </NavLink>
             <NavLink href={GITHUB_REPO_URL} external>
               GitHub
             </NavLink>

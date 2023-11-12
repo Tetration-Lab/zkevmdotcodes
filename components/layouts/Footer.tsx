@@ -7,9 +7,20 @@ const Footer = () => {
     <footer className="border-t border-gray-100 dark:border-black-600 py-4">
       <Container>
         <div className="flex justify-between text-tiny text-gray-500 items-start">
-          <div className="flex flex-col md:flex-row leading-6">
+          <div className="flex flex-col md:flex-row leading-6 gap-2">
             <span>
-              Brought to you by{' '}
+              Made by{' '}
+              <a
+                className="underline font-medium"
+                href="https://tetrationlab.com"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Tetration Lab
+              </a>
+            </span>
+            <span>
+              Original site by{' '}
               <a
                 className="underline font-medium"
                 href="https://smlxl.io"
@@ -17,28 +28,15 @@ const Footer = () => {
                 rel="noreferrer"
               >
                 smlXL, Inc
-              </a>
-              .
-            </span>
-
-            <span className="md:mx-2">
-              Powered by{' '}
-              <a
-                className="underline font-medium"
-                href="https://github.com/ethereumjs/ethereumjs-monorepo"
-                target="_blank"
-                rel="noreferrer"
-              >
-                EthereumJS
               </a>{' '}
               and{' '}
               <a
                 className="underline font-medium"
-                href="https://github.com/ethereum/solc-js"
+                href="https://www.evm.codes/"
                 target="_blank"
                 rel="noreferrer"
               >
-                SolcJS
+                evm.codes
               </a>
               .
             </span>
