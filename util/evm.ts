@@ -27,6 +27,7 @@ export class EVM {
   value = 0
   calldata: number[] = []
   block = 0
+  isHalt = false
 
   protected readonly _customPrecompiles?: CustomPrecompile[]
 
@@ -138,7 +139,7 @@ export class EVM {
 
   public async runStep() {
     // implement stack machine here
-    console.log('instructions', this.instructions)
+    console.log('run step storage', this.storage)
     const instructions: Record<string, any> = {}
     this.instructions.forEach((inst:any) => {
       instructions[inst.id] = inst
@@ -150,6 +151,7 @@ export class EVM {
       needIncraseCounter = false
       const val = this.stack.pop()
       this.returns = val
+      this.isHalt = true
     } else if (opcode?.name == 'ADD') {
       const v1 = this.stack.pop()
       const v2 = this.stack.pop()
@@ -266,6 +268,7 @@ export class EVM {
       this.stack.push(v1)
     } else if (opcode?.name == 'REVERT') {
       // should halt
+      this.isHalt = true
       needIncraseCounter = false
     }
     if (needIncraseCounter) {
@@ -278,7 +281,8 @@ export class EVM {
       memory: this.memory,
       pc: this.counter,
       storage: this.storage,
-      returns: this.returns
+      returns: this.returns,
+      isHalt: this.isHalt
     })
   }
 
@@ -307,12 +311,13 @@ export class EVM {
   public resetState() {
     this.stack = new Stack<number>()
     this.memory = new Array<number>(32)
-    this.storage = new Array<number>(32)
+    // this.storage = new Array<number>(32)
     this.counter = 0
     this.balance = 0
     this.calldata = []
     this.returns = 0
     this.value = 0
+    this.isHalt = false
   }
 
   constructor() {
@@ -327,5 +332,6 @@ export class EVM {
     this.memory = new Array<number>(32)
     this.returns = 0
     this.counter = 0
+    this.isHalt = false
   }
 }

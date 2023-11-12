@@ -33,6 +33,7 @@ import {
 import { Stack } from 'util/stack'
 import { toHex, fromBuffer } from 'util/string'
 import { VM } from 'util/vm'
+import { set } from 'lodash'
 
 let vm: VM
 let common: Common
@@ -314,11 +315,13 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     return vm
       .runTx(instructions, 69, parseInt(value.toString()), data)
       .then(({ execResult, totalGasSpent, createdAddress }) => {
-        // _setExecutionState({
-        //   pc: 0,
-        //   stack: [],
-        //   memory: [],
-        // })
+        _setExecutionState({
+          pc: 0,
+          stack: new Stack<number>(),
+          memory: [],
+          storage: executionState.storage,
+          returns: []
+        })
         // _loadRunState({
         //   totalGasSpent,
         //   runState: execResult.runState,
@@ -663,7 +666,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
   }
 
   const _stepInto = (
-    { pc, stack, memory, storage, returns }: any,
+    { pc, stack, memory, storage, returns, isHalt }: any,
     continueFunc: ((result?: any) => void) | undefined,
   ) => {
     // We skip over the calls
@@ -672,7 +675,6 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     //   return
     // }
 
-    console.log('step into returns', stack, memory, storage, returns)
     _setExecutionState({
       pc,
       stack,
@@ -680,6 +682,11 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
       storage,
       returns
     })
+
+    if (isHalt) {
+      setIsExecuting(false)
+      return
+    }
 
     nextStepFunction.current = continueFunc
 
@@ -703,7 +710,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     stack: Stack<number>
     memory: number[]
     storage: number[]
-    returns: number[]
+    returns: number[],
   }) => {
     console.log('before setting returns', returns)
     setExecutionState({
