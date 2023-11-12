@@ -71,12 +71,36 @@ export class EVM {
     0x1d: { name: 'REVERT', isAsync: false, dynamicGas: false }
   }
 
-  async runCall(instructions: any[], caller: number, value:number = 0, calldata: number[] = [], block = 0): Promise<RunTxResult> {
+  hexStringToUint8Array(hexString: string): number[] {
+  // Ensure the input has an even number of characters
+  if (hexString.length % 2 !== 0) {
+    throw new Error('Hexadecimal string must have an even number of characters');
+  }
+
+  const dataArray = new Array<number>(hexString.length / 2);
+
+  for (let i = 0; i < hexString.length; i += 2) {
+    const hexPair = hexString.substr(i, 2); // Get two characters at a time
+    const byteValue = parseInt(hexPair, 16); // Parse as hexadecimal
+    if (isNaN(byteValue)) {
+      throw new Error(`Invalid hexadecimal character(s) at position ${i}: ${hexPair}`);
+    }
+    dataArray[i / 2] = byteValue;
+  }
+
+  return dataArray;
+}
+
+
+  async runCall(instructions: any[], caller: number, value:number = 0, calldata: string = '', block = 0): Promise<RunTxResult> {
     // load opcodes
     // this.instructions = instructions
     this.caller = caller
+    console.log('caller', this.caller)
     this.value = value
-    this.calldata = calldata
+    this.balance = value
+    this.calldata = this.hexStringToUint8Array(calldata)
+    console.log('calldata', this.calldata)
     this.block = block
     // dummy result
     const result: RunTxResult = {

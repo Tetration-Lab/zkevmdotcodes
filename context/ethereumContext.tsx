@@ -286,20 +286,22 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     // )
     // startTransaction(await transactionData(data, value, contractAddress))
     vm.resetState()
-    startTransaction(null)
+    const calldata = Buffer.from(data, 'hex')
+    console.log('calldata', calldata)
+    startTransaction(byteCode, value, calldata.toString('hex'))
   }
 
   /**
    * Starts EVM execution of the instructions.
    * @param tx The transaction data to run from.
    */
-  const startTransaction = (tx: TypedTransaction | TxData | null) => {
+  const startTransaction = (byteCode: string, value: bigint, data:string) => {
     // always start paused
     isExecutionPaused.current = true
     setIsExecuting(true)
     setVmError(undefined)
     // starting execution via deployed contract's transaction
-    return vm.runTx(instructions)
+    return vm.runTx(instructions, 69, parseInt(value.toString()), data)
       .then(({ execResult, totalGasSpent, createdAddress }) => {
         // _setExecutionState({
         //   pc: 0,
@@ -659,8 +661,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     continueFunc: ((result?: any) => void) | undefined,
   ) => {
     // We skip over the calls
-    console.log('hey')
-    console.log(executionState)
+    console.log('hey', executionState)
     // if (continueFunc) {
     //   continueFunc()
     //   return

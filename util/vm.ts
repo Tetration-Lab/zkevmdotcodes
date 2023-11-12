@@ -14,9 +14,9 @@ export class VM {
     return vm
   }
 
-  public async runTx(instructions: any[], caller: number = 69): Promise<RunTxResult> {
+  public async runTx(instructions: any[], caller: number = 69, value: number = 12, calldata:string = ''): Promise<RunTxResult> {
     // execute with dummy result
-    const result = await this.evm.runCall(instructions, caller)
+    const result = await this.evm.runCall(instructions, caller, value, calldata)
     return result
   }
 
