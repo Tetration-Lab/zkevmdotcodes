@@ -52,6 +52,7 @@ const HomePage = ({
             className="underline"
             href="https://www.tetrationlab.com/"
             target="_blank"
+            rel="noreferrer"
           >
             Tetration Lab <Icon name="links-line" />
           </a>{' '}

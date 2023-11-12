@@ -150,14 +150,7 @@ const Editor = ({ readOnly = false }: Props) => {
         setIsCompiling(false)
       }
     },
-    [
-      transactionData,
-      getCallValue,
-      loadInstructions,
-      startTransaction,
-      codeType,
-      log,
-    ],
+    [transactionData, getCallValue, loadInstructions, startTransaction, log],
   )
 
   const handleWorkerMessage = useCallback(
