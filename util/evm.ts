@@ -18,6 +18,7 @@ export class EVM {
   // state & storage
   memory: number[] = []
   storage: number[] = []
+  returns: number[] = []
   counter = 0
   balance = 0
   stack: Stack<number>
@@ -110,6 +111,7 @@ export class EVM {
     console.log('caller', this.caller)
     this.value = value
     this.balance = value
+    this.returns = new Array<number>(32)
     this.calldata = this.hexStringToUint8Array(calldata)
     console.log('calldata', this.calldata)
     this.block = block
@@ -138,7 +140,11 @@ export class EVM {
     // implement stack machine here
     const opcode = this.instructions[this.counter]
     console.log(opcode)
+    let needIncraseCounter = true
     if (opcode?.name == 'RETURN') {
+      needIncraseCounter = false
+      const val = this.stack.pop()
+      this.returns.push(val)
     } else if (opcode?.name == 'ADD') {
       const v1 = this.stack.pop()
       const v2 = this.stack.pop()
@@ -234,14 +240,17 @@ export class EVM {
     } else if (opcode?.name == 'JUMP') {
       const idx = this.stack.pop()
       this.counter = idx
+      needIncraseCounter = false
     } else if (opcode?.name == 'JUMPI') {
       const idx = this.stack.pop()
       const val = this.stack.pop()
       if (val != 0) {
         this.counter = idx
+        needIncraseCounter = false
       }
     } else if (opcode?.name == 'PUSH') {
       this.stack.push(opcode.value)
+      this.counter += 1
     } else if (opcode?.name == 'DUP') {
       const val = this.stack.peek()
       this.stack.push(val)
@@ -252,14 +261,19 @@ export class EVM {
       this.stack.push(v1)
     } else if (opcode?.name == 'REVERT') {
       // should halt
+      needIncraseCounter = false
     }
-    this.counter += 1
+    if (needIncraseCounter) {
+      this.counter += 1
+    }
+    
     // hook
     await this._emit('step', {
       stack: this.stack,
       memory: this.memory,
       pc: this.counter,
       storage: this.storage,
+      returns: this.returns
     })
   }
 
@@ -292,6 +306,7 @@ export class EVM {
     this.counter = 0
     this.balance = 0
     this.calldata = []
+    this.returns = new Array<number>(32)
     this.value = 0
   }
 
@@ -305,6 +320,7 @@ export class EVM {
     this.stack = new Stack<number>()
     this.storage = new Array<number>(32)
     this.memory = new Array<number>(32)
+    this.returns = new Array<number>(32)
     this.counter = 0
   }
 }

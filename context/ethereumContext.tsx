@@ -93,6 +93,7 @@ const initialExecutionState = {
   stack: [],
   storage: [],
   memory: [],
+  returns: []
 }
 
 export const EthereumContext = createContext<ContextProps>({
@@ -184,6 +185,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     vm.evm.events!.on(
       'step',
       (e: any, contFunc: ((result?: any) => void) | undefined) => {
+        console.log('listen event step', e)
         _stepInto(e, contFunc)
       },
     )
@@ -661,21 +663,22 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
   }
 
   const _stepInto = (
-    { pc, stack, memory, storage }: any,
+    { pc, stack, memory, storage, returns }: any,
     continueFunc: ((result?: any) => void) | undefined,
   ) => {
     // We skip over the calls
-    console.log('hey', executionState)
     // if (continueFunc) {
     //   continueFunc()
     //   return
     // }
 
+    console.log('step into returns', stack, memory, storage, returns)
     _setExecutionState({
       pc,
       stack,
       memory,
       storage,
+      returns
     })
 
     nextStepFunction.current = continueFunc
@@ -694,20 +697,23 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     stack,
     memory,
     storage,
+    returns
   }: {
     pc: number
     stack: Stack<number>
     memory: number[]
     storage: number[]
+    returns: number[]
   }) => {
-    console.log('before setting', executionState)
+    console.log('before setting returns', returns)
     setExecutionState({
       programCounter: pc,
       stack: stack.items
         .map((item) => parseInt(item.toString()).toString())
         .reverse(),
-      memory: memory,
-      storage: storage,
+      memory,
+      storage,
+      returns
     })
   }
 

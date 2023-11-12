@@ -100,7 +100,7 @@ const Editor = ({ readOnly = false }: Props) => {
   const instructionsRef = useRef() as MutableRefObject<HTMLDivElement>
   const editorRef = useRef<SCEditorRef>()
   const [callData, setCallData] = useState('')
-  const [callValue, setCallValue] = useState('')
+  const [callValue, setCallValue] = useState('12')
   const [unit, setUnit] = useState(ValueUnit.Wei as string)
 
   const [contract, setContract] = useState<Contract | undefined>(undefined)
@@ -120,6 +120,7 @@ const Editor = ({ readOnly = false }: Props) => {
   )
 
   const getCallValue = useCallback(() => {
+    console.log('callvalue', callValue)
     const _callValue = BigInt(callValue)
     switch (unit) {
       case ValueUnit.Gwei:
@@ -199,6 +200,7 @@ const Editor = ({ readOnly = false }: Props) => {
   useEffect(() => {
     const query = router.query
 
+    setCallValue('12')
     if ('callValue' in query && 'unit' in query) {
       setCallValue(query.callValue as string)
       setUnit(query.unit as string)

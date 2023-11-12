@@ -53,6 +53,7 @@ export interface IExecutionState {
   stack: string[]
   storage: number[]
   memory: number[]
+  returns: number[]
 }
 
 export interface IChain {
