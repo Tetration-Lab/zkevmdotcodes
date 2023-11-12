@@ -13,10 +13,10 @@ const HomeLayout: NextPage = ({ children }) => {
       <Head>
         <title>zkEVM Type 5</title>
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="EVM Codes" />
+        <meta property="og:title" content="zkEVM Type 5" />
         <meta
           property="og:description"
-          content="An Ethereum Virtual Machine Opcodes Interactive Reference"
+          content="An zkEVM Type 5 Special Opcodes Interactive Reference"
         />
         <meta property="og:image" content={`${getAbsoluteURL('/og.png')}`} />
         <meta property="og:url" content={getAbsoluteURL()} />
