@@ -45,12 +45,13 @@ const ExecutionStateRow = ({ label, value }: RowProps) => {
 
 const ExecutionState = () => {
   const { executionState } = useContext(EthereumContext)
-  const { memory, stack, storage, returnValue } = executionState
+  console.log('from executionstate component', executionState)
+  const { memory, stack, storage } = executionState
 
   return (
     <div>
       <dl className="text-2xs">
-        <ExecutionStateRow label="Memory" value={memory} />
+        {/* <ExecutionStateRow label="Memory" value={memory} /> */}
         <ExecutionStateRow label="Stack" value={stack} />
 
         <dt className="mb-1 text-gray-500 dark:text-gray-400 font-medium uppercase">
@@ -61,7 +62,7 @@ const ExecutionState = () => {
             className="inline-block border border-gray-600 dark:border-gray-700 px-2 py-1 mb-1 w-full"
             style={{ minHeight: 26 }}
           >
-            <dl>
+            {/* <dl>
               {storage.map(({ address, slot, value }, index) => (
                 <div key={`storage-${index}`}>
                   <ExecutionStateRow label="Contract" value={address} />
@@ -69,11 +70,9 @@ const ExecutionState = () => {
                   <ExecutionStateRow label="Value" value={value} />
                 </div>
               ))}
-            </dl>
+            </dl> */}
           </div>
         </dd>
-
-        <ExecutionStateRow label="Return value" value={returnValue} />
       </dl>
     </div>
   )

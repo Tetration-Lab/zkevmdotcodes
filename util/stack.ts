@@ -1,15 +1,21 @@
 export class Stack<T> {
-  private items: T[] = [];
+  public items: T[] = [];
 
   push(item: T): void {
     this.items.push(item);
   }
 
-  pop(): T | undefined {
-    return this.items.pop();
+  pop(): T {
+    try {
+      const item = this.peek()
+      this.items.pop()
+      return item
+    } catch (e) {
+      throw e
+    }
   }
 
-  peek(): T | undefined {
+  peek(): T {
     return this.items[this.items.length - 1];
   }
 

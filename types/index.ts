@@ -49,10 +49,10 @@ export interface IStorage {
 }
 
 export interface IExecutionState {
-  programCounter: number | undefined
+  programCounter: number
   stack: string[]
-  storage: IStorage[]
-  memory: string | undefined
+  storage: number[]
+  memory: number[]
 }
 
 export interface IChain {

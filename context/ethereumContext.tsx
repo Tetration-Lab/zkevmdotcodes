@@ -31,6 +31,7 @@ import {
   calculatePrecompiledDynamicFee,
 } from 'util/gas'
 import { toHex, fromBuffer } from 'util/string'
+import { Stack } from 'util/stack'
 
 let vm: VM
 let common: Common
@@ -83,13 +84,10 @@ type ContextProps = {
 }
 
 const initialExecutionState = {
+  programCounter: 0,
   stack: [],
   storage: [],
-  memory: undefined,
-  programCounter: undefined,
-  totalGas: undefined,
-  currentGas: undefined,
-  returnValue: undefined,
+  memory: []
 }
 
 export const EthereumContext = createContext<ContextProps>({
@@ -180,8 +178,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     // _setupAccount()
     vm.evm.events!.on(
       'step',
-      (e: InterpreterStep, contFunc: ((result?: any) => void) | undefined) => {
-        console.log(e, contFunc)
+      (e: any, contFunc: ((result?: any) => void) | undefined) => {
         _stepInto(e, contFunc)
       },
     )
@@ -269,6 +266,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
       }
     }
     setInstructions(instructions)
+    vm.loadInstructions(instructions)
   }
 
   /**
@@ -287,6 +285,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     //   Buffer.from(byteCode, 'hex'),
     // )
     // startTransaction(await transactionData(data, value, contractAddress))
+    vm.resetState()
     startTransaction(null)
   }
 
@@ -299,25 +298,22 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     isExecutionPaused.current = true
     setIsExecuting(true)
     setVmError(undefined)
-    console.log('start transaction ...')
+    console.log('before run')
     // starting execution via deployed contract's transaction
-    return vm.runTx()
+    return vm.runTx(instructions)
       .then(({ execResult, totalGasSpent, createdAddress }) => {
         // _setExecutionState({
         //   pc: 0,
-        //   totalGasSpent,
         //   stack: [],
-        //   memory: Buffer.from(''),
-        //   memoryWordCount: 0n,
-        //   returnValue: Buffer.from(''),
+        //   memory: [],
         // })
-        _loadRunState({
-          totalGasSpent,
-          runState: execResult.runState,
-          newContractAddress: createdAddress,
-          returnValue: execResult.returnValue,
-          exceptionError: execResult.exceptionError,
-        })
+        // _loadRunState({
+        //   totalGasSpent,
+        //   runState: execResult.runState,
+        //   newContractAddress: createdAddress,
+        //   returnValue: execResult.returnValue,
+        //   exceptionError: execResult.exceptionError,
+        // })
         return {
           error: execResult.exceptionError,
           returnValue: execResult.returnValue,
@@ -414,14 +410,15 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
   /**
    * Runs the next EVM execution.
    */
-  const nextExecution = () => {
+  const nextExecution = async () => {
     // FIXME: Instead of allowing to get into exception,
     // prevent from executing when all instructions have been completed.
     try {
-      console.log(nextStepFunction)
-      if (nextStepFunction.current) {
-        nextStepFunction.current()
-      }
+      await vm.evm.runStep()
+      // console.log(nextStepFunction)
+      // if (nextStepFunction.current) {
+      //   nextStepFunction.current()
+      // }
     } catch (_e) {
       const error = _e as Error
 
@@ -621,14 +618,11 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
   }) => {
     if (runState) {
       const { programCounter: pc, stack, memory, memoryWordCount } = runState
-      _setExecutionState({
-        pc,
-        totalGasSpent,
-        stack: stack._store,
-        memory: memory._store,
-        memoryWordCount,
-        returnValue,
-      })
+      // _setExecutionState({
+      //   pc,
+      //   stack: [],
+      //   memory: [],
+      // })
     }
 
     if (exceptionError) {
@@ -658,31 +652,24 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
 
   const _stepInto = (
     {
-      depth,
       pc,
-      gasLeft,
-      opcode,
       stack,
       memory,
-      memoryWordCount,
-    }: InterpreterStep,
+    }: any,
     continueFunc: ((result?: any) => void) | undefined,
   ) => {
     // We skip over the calls
-    if (depth !== 0 && continueFunc) {
-      continueFunc()
-      return
-    }
-
-    const totalGasSpent = gasLimit - gasLeft
+    console.log('hey')
+    console.log(executionState)
+    // if (continueFunc) {
+    //   continueFunc()
+    //   return
+    // }
 
     _setExecutionState({
       pc,
-      totalGasSpent,
       stack,
       memory,
-      memoryWordCount,
-      currentGas: opcode.fee,
     })
 
     nextStepFunction.current = continueFunc
@@ -698,34 +685,23 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
 
   const _setExecutionState = ({
     pc,
-    totalGasSpent,
     stack,
     memory,
-    memoryWordCount,
-    currentGas,
-    returnValue,
   }: {
     pc: number
-    totalGasSpent: bigint
-    stack: bigint[]
-    memory: Buffer
-    memoryWordCount: bigint
-    currentGas?: bigint | number
-    returnValue?: Buffer
+    stack: Stack<number>,
+    memory: number[]
   }) => {
     const storage: IStorage[] = []
-
-    storageMemory.forEach((sm, address) => {
-      sm.forEach((value: string, slot: string) => {
-        storage.push({ address, slot, value })
-      })
-    })
-
+    console.log(pc)
+    console.log(stack.items)
+    console.log(memory)
+    console.log(executionState)
     setExecutionState({
       programCounter: pc,
-      stack: stack.map((value) => value.toString(16)).reverse(),
-      memory: fromBuffer(memory).substring(0, Number(memoryWordCount) * 64),
-      storage
+      stack: stack.items.map((item) => item.toString()).reverse(),
+      memory: memory,
+      storage: []
     })
   }
 

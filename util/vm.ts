@@ -14,11 +14,18 @@ export class VM {
     return vm
   }
 
-  public async runTx(): Promise<RunTxResult> {
+  public async runTx(instructions: any[], caller: number = 69): Promise<RunTxResult> {
     // execute with dummy result
-    
-    const result = await this.evm.runCall()
+    const result = await this.evm.runCall(instructions, caller)
     return result
+  }
+
+  public loadInstructions(instructions: any[]) {
+    this.evm.instructions = instructions
+  }
+
+  public resetState() {
+    this.evm.resetState()
   }
 
   protected constructor(opts: VMOpts = {}) {
