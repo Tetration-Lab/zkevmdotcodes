@@ -51,7 +51,24 @@ const ExecutionState = () => {
   return (
     <div>
       <dl className="text-2xs">
-        {/* <ExecutionStateRow label="Memory" value={memory} /> */}
+        <dt className="mb-1 text-gray-500 dark:text-gray-400 font-medium uppercase">
+          Memory
+        </dt>
+        <dd className="mb-2">
+          <div
+            className="inline-block border border-gray-600 dark:border-gray-700 px-2 py-1 mb-1 w-full"
+            style={{ minHeight: 26 }}
+          >
+            <dl>
+              {memory.map((value, index) => (
+                <div key={`memory-${index}`}>
+                  <ExecutionStateRow label="Slot" value={index.toString()} />
+                  <ExecutionStateRow label="Value" value={value.toString()} />
+                </div>
+              ))}
+            </dl>
+          </div>
+        </dd>
         <ExecutionStateRow label="Stack" value={stack} />
 
         <dt className="mb-1 text-gray-500 dark:text-gray-400 font-medium uppercase">
@@ -62,15 +79,14 @@ const ExecutionState = () => {
             className="inline-block border border-gray-600 dark:border-gray-700 px-2 py-1 mb-1 w-full"
             style={{ minHeight: 26 }}
           >
-            {/* <dl>
-              {storage.map(({ address, slot, value }, index) => (
+            <dl>
+              {storage.map((value, index) => (
                 <div key={`storage-${index}`}>
-                  <ExecutionStateRow label="Contract" value={address} />
-                  <ExecutionStateRow label="Slot" value={slot} />
-                  <ExecutionStateRow label="Value" value={value} />
+                  <ExecutionStateRow label="Slot" value={index.toString()} />
+                  <ExecutionStateRow label="Value" value={value.toString()} />
                 </div>
               ))}
-            </dl> */}
+            </dl>
           </div>
         </dd>
       </dl>

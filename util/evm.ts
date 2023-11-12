@@ -183,20 +183,20 @@ export class EVM {
       this.stack.pop()
     } else if (opcode?.name == 'MLOAD') {
       const idx = this.stack.pop()
-      const mem = this.memory[idx]
+      const mem = this.memory[parseInt(idx.toString())]
       this.stack.push(mem)
     } else if (opcode?.name == 'MSTORE') {
       const idx = this.stack.pop()
       const val = this.stack.pop()
-      this.memory[idx] = val
+      this.memory[parseInt(idx.toString())] = val
     } else if (opcode?.name == 'SLOAD') {
       const idx = this.stack.pop()
-      const val = this.storage[idx]
+      const val = this.storage[parseInt(idx.toString())]
       this.stack.push(val)
     } else if (opcode?.name == 'SSTORE') {
       const idx = this.stack.pop()
       const val = this.stack.pop()
-      this.storage[idx] = val
+      this.storage[parseInt(idx.toString())] = val
     } else if (opcode?.name == 'JUMP') {
       const idx = this.stack.pop()
       this.counter = idx
@@ -221,7 +221,7 @@ export class EVM {
     } 
     this.counter += 1
     // hook
-    await this._emit('step', { stack: this.stack, memory: this.memory, pc: this.counter })
+    await this._emit('step', { stack: this.stack, memory: this.memory, pc: this.counter, storage: this.storage })
   }
 
   getActiveOpcodes(): OpcodeList {
@@ -245,8 +245,8 @@ export class EVM {
 
   public resetState() {
     this.stack = new Stack<number>()
-    this.memory = []
-    this.storage = []
+    this.memory = new Array<number>(32)
+    this.storage = new Array<number>(32)
     this.counter = 0
     this.balance = 0
     this.calldata = []
@@ -259,6 +259,9 @@ export class EVM {
       return new Promise((resolve) => this.events.emit(topic as keyof EVMEvents, data, resolve))
     }
     this.stack = new Stack<number>()
+    this.storage = new Array<number>(32)
+    this.memory = new Array<number>(32)
+    this.counter = 0
   }
 
   

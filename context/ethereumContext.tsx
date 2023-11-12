@@ -298,7 +298,6 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     isExecutionPaused.current = true
     setIsExecuting(true)
     setVmError(undefined)
-    console.log('before run')
     // starting execution via deployed contract's transaction
     return vm.runTx(instructions)
       .then(({ execResult, totalGasSpent, createdAddress }) => {
@@ -655,6 +654,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
       pc,
       stack,
       memory,
+      storage
     }: any,
     continueFunc: ((result?: any) => void) | undefined,
   ) => {
@@ -670,6 +670,7 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
       pc,
       stack,
       memory,
+      storage
     })
 
     nextStepFunction.current = continueFunc
@@ -687,21 +688,19 @@ export const EthereumProvider: React.FC<{}> = ({ children }) => {
     pc,
     stack,
     memory,
+    storage
   }: {
     pc: number
     stack: Stack<number>,
-    memory: number[]
+    memory: number[],
+    storage: number[]
   }) => {
-    const storage: IStorage[] = []
-    console.log(pc)
-    console.log(stack.items)
-    console.log(memory)
-    console.log(executionState)
+    console.log("before setting", executionState)
     setExecutionState({
       programCounter: pc,
-      stack: stack.items.map((item) => item.toString()).reverse(),
+      stack: stack.items.map((item) => parseInt(item.toString()).toString()).reverse(),
       memory: memory,
-      storage: []
+      storage: storage,
     })
   }
 
